@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tower.cs : MonoBehaviour {
+public class Tower : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

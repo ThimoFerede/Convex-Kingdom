@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Road.cs : MonoBehaviour {
+public class Road : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

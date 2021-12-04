@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WallSegment.cs : MonoBehaviour {
+public class WallSegment : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
