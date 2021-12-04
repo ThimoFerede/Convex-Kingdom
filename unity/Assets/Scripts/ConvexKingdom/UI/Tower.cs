@@ -1,21 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿namespace ConvexKingdom{
+	using System.Collections;
+	using System.Collections.Generic;
+	using UnityEngine;
 
-public class Tower : MonoBehaviour
-{
-	public Vector2 Pos { get; private set; }
-
-	private Controller m_controller;
-
-	void Awake()
+	public class Tower : MonoBehaviour
 	{
-		Pos = new Vector2(transform.position.x, transform.position.y);
-		m_controller = FindObjectOfType<Controller>();
-	}
+		public Vector2 Pos { get; private set; }
 
-	void OnMouseUpAsButton()
-	{
-		// claim or battle for tower
+		private Controller m_controller;
+
+		void Awake()
+		{
+			Pos = new Vector2(transform.position.x, transform.position.y);
+			m_controller = FindObjectOfType<Controller>();
+		}
+
+		void OnMouseUpAsButton()
+		{
+			// claim or battle for tower
+		}
 	}
 }

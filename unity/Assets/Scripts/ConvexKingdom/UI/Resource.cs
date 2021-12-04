@@ -1,12 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿namespace ConvexKingdom{
+	using System.Collections;
+	using System.Collections.Generic;
+	using UnityEngine;
 
-public class Resource : MonoBehaviour
-{
-	public Vector2 Pos { get; private set; }
-	//value?
-	//type?
+	public class Resource : MonoBehaviour
+	{
+		public Vector2 Pos { get; private set; }
+		//value?
+		//type?
 
-	// not sure if class is needed
+		// not sure if class is needed
+	}
 }
