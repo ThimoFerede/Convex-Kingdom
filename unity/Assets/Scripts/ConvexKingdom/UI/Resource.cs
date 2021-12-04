@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Resource : MonoBehaviour {
+public class Resource : MonoBehaviour
+{
+	public Vector2 Pos { get; private set; }
+	//value?
+	//type?
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+	// not sure if class is needed
 }

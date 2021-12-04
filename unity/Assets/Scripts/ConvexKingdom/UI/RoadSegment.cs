@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Road : MonoBehaviour {
+public class RoadSegment : MonoBehaviour
+{
+	public Tower t1 { get; private set; }
+	public Tower t2 { get; private set; }
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+	// not sure if class is needed
 }
