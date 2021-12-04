@@ -10,8 +10,8 @@
 	using Util.Math;
 
 	/// <summary>
-	/// Construction of the Convex Hull
-	/// Responsibility: Thimo
+	/// Construction of a Vertical Decomposition
+	/// Responsibility: Thimo & Georgi
 	/// </summary>
 	public static class VerticalDecomposer
 	{
