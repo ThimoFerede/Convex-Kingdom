@@ -7,7 +7,7 @@ using ConvexKingdom;
 using Util.Geometry.Polygon;
 using Util.DataStructures.VerticalDecomposition;
 
-public class UI : MonoBehaviour
+    public class UI : MonoBehaviour
 {
     public const int TOWERS_PER_SIDE = 10;
     private bool isRedTurn = true;
@@ -58,8 +58,12 @@ public class UI : MonoBehaviour
         SceneManager.LoadScene("Menu");
     }
 
-     public void GoToInstructions() {
+    public void GoToInstructions() {
         SceneManager.LoadScene("Instructions");
+    }
+
+    public void GoToAbout() {
+        SceneManager.LoadScene("Explanation");
     }
 
     public void PlaceTower() {
@@ -111,7 +115,9 @@ public class UI : MonoBehaviour
                 isRedTurn = !isRedTurn;
             }
         }
-
+        if(availableTowers.Count == 0){
+            isFinished = true;
+        }
         ShowScores();
     }
 
@@ -146,30 +152,48 @@ public class UI : MonoBehaviour
     private void ShowScores() {
         Text tbTurn = GameObject.Find("Turn").GetComponent<Text>();
         Text tbWinner = GameObject.Find("Winner").GetComponent<Text>();
+        
+        Text scBlue = GameObject.Find("ScoreBlue").GetComponent<Text>();
+        Text scRed = GameObject.Find("ScoreRed").GetComponent<Text>();
+
         tbWinner.text = "";
+
 
         var redArea = ConvexHullGen.CalculateConvexHullArea(convexHullRed, Camera.main);
         var blueArea = ConvexHullGen.CalculateConvexHullArea(convexHullBlue, Camera.main);
 
+        var scoreRed = (int)redArea + 1000*redScore;
+        var scoreBlue = (int)blueArea + 1000*blueScore;
+        
+        scRed.text = "Score Red: " + scoreRed;
+        scBlue.text = "Score Blue: " + scoreBlue;
 
-        if (redArea > blueArea) {
-            tbWinner.text = "Player Red has larger area and "+redScore+" gold coins!";
-            tbWinner.color = Color.red;
-        } else if (redArea == blueArea) {
-            tbWinner.text = "The areas are equal!";
-            tbWinner.color = Color.green;
-        } else {
-            tbWinner.text = "Player Blue has larger area and "+blueScore+" gold coins!";
-            tbWinner.color = Color.blue;
+        if(isFinished){
+            if (redArea > blueArea) {
+                if(scoreRed > scoreBlue){
+                    tbWinner.text = "Red Kingdom has the largest area and "+redScore+" gold coins!";
+                    tbWinner.color = Color.red;
+                }else{
+                    tbWinner.text = "Red Kingdom has the largest area, but Blue has "+(blueScore-redScore)+" more gold coins!";
+                    tbWinner.color = Color.blue;
+                }
+            } else if (scoreBlue == scoreRed) {
+                tbWinner.text = "The values of both Kingdoms are equal!";
+                tbWinner.color = Color.green;
+            } else {
+                if(scoreRed > scoreBlue){
+                    tbWinner.text = "Blue Kingdom has the largest area, but Red has "+(blueScore-redScore)+" more gold coins!";
+                    tbWinner.color = Color.red;
+                }else{
+                    tbWinner.text = "Blue Kingdom has the largest area and "+blueScore+" gold coins!";
+                    tbWinner.color = Color.blue;
+                }
+            }
         }
         // tbTurn.text = "Game Over!";
 
         GameObject canvas = GameObject.Find("Canvas");
         Button btnObject = canvas.GetComponentInChildren<Button>();
-        // Button btnRestart = btnObject.GetComponent<Button>();
-        btnObject.GetComponentInChildren<Text>().text = "Go to menu";
-        btnObject.enabled = true;
-        // this.isFinished = true;
 
         UpdateVerticalDecomp(Player.Red);
         UpdateVerticalDecomp(Player.Blue);

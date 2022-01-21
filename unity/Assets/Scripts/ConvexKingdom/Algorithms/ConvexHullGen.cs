@@ -53,9 +53,10 @@
         }
 
         // Calculate the upper hull
-        for (int i = n - 2, t = k + 1; i >= 0; i--)
+        int threshold = k+1;
+        for (int i = n - 2; i >= 0; i--)
         {
-            while (k >= t && getCross(convexHull[k - 2], convexHull[k - 1], points[i]) <= 0)
+            while (k >= threshold && getCross(convexHull[k - 2], convexHull[k - 1], points[i]) <= 0)
                 k--;
             convexHull[k++] = points[i];
         }

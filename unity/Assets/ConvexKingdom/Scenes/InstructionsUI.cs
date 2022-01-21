@@ -7,4 +7,7 @@ public class InstructionsUI : MonoBehaviour {
     public void StartGame() {
         SceneManager.LoadScene("Game");
     }
+    public void GoToMenu() {
+        SceneManager.LoadScene("Menu");
+    }
 }
