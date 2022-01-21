@@ -128,4 +128,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ConvexKingdom/Scenes/Game.unity
     guid: 67e7976b7ad056146bd12ecc4bdcb457
+  - enabled: 1
+    path: Assets/ConvexKingdom/Scenes/Instructions.unity
+    guid: 00cdfc4a6e8a441e6bf90d7f1ca55c13
   m_configObjects: {}

@@ -1,0 +1,75 @@
+
+        // Text tbTurn = GameObject.Find("Turn").GetComponent<Text>();
+        // Text tbWinner = GameObject.Find("Winner").GetComponent<Text>();
+        // tbWinner.text = "";
+
+        // if (this.blueTowers.Count > 10) {
+        //     // Game ends here
+        //     // Show Some message
+        //     var convexHullBlue = ConvexHullGen.GetConvexHull(this.blueTowers);
+        //     var convexHullRed = ConvexHullGen.GetConvexHull(this.redTowers);
+        //     this.DrawLines(convexHullBlue, Color.blue);
+        //     this.DrawLines(convexHullRed, Color.red);
+        //     GetVerticalDecomp(convexHullRed);
+        //     var redArea = ConvexHullGen.CalculateConvexHullArea(convexHullRed, Camera.main);
+        //     var blueArea = ConvexHullGen.CalculateConvexHullArea(convexHullBlue, Camera.main);
+
+        //     if (redArea > blueArea) {
+        //         tbWinner.text = "Player Red has larger area!";
+        //         tbWinner.color = Color.red;
+        //     } else if (redArea == blueArea) {
+        //         tbWinner.text = "Draw - the areas are equal!";
+        //         tbWinner.color = Color.green;
+        //     } else {
+        //         tbWinner.text = "Player Blue has larger area!";
+        //         tbWinner.color = Color.blue;
+        //     }
+
+        //     tbTurn.text = "Game Over!";
+
+        //     GameObject canvas = GameObject.Find("Canvas");
+        //     Button btnObject = canvas.GetComponentInChildren<Button>();
+        //     // Button btnRestart = btnObject.GetComponent<Button>();
+        //     btnObject.GetComponentInChildren<Text>().text = "Go to menu";
+        //     btnObject.enabled = true;
+        //     return;
+        // }
+
+        // if (this.IsInvalidCoordinate(Input.mousePosition)) {
+        //     // if towers would overlap or a tower is on the button
+        //     tbWinner.text = "Please select unique coordinates";
+        //     tbWinner.color = Color.yellow;
+        //     return;
+        // }    
+
+        
+
+        // GameObject mCanvas = GameObject.Find("Canvas");
+        // GameObject imgObject = new GameObject("Tower"+(this.counter++).ToString());
+
+        // RectTransform trans = imgObject.AddComponent<RectTransform>();
+        // trans.transform.SetParent(mCanvas.transform); // setting parent
+        // trans.localScale = Vector3.one;
+        // trans.anchoredPosition = new Vector2(0f, 0f); // setting position, will be on center
+        // trans.sizeDelta= new Vector2(Tower.width, Tower.height); // custom size
+        
+        // Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition, 0);
+
+
+        // Image image = imgObject.AddComponent<Image>();
+        // image.transform.position = Input.mousePosition;
+        // image.transform.localScale = new Vector3(1, 1, .1f);
+
+        // if (this.isRedTurn) {
+        //     image.sprite = Resources.Load<Sprite>("red");
+        //     this.redTowers.Add(new Tower(mousePos.x, mousePos.y));
+        //     tbTurn.text = "Blue's Turn";
+        //     tbTurn.color = Color.blue;
+        // } else {
+        //     image.sprite = Resources.Load<Sprite>("blue");
+        //     this.blueTowers.Add(new Tower(mousePos.x, mousePos.y));
+        //     tbTurn.text = "Red's Turn";
+        //     tbTurn.color = Color.red;
+        // }
+        // imgObject.transform.SetParent(mCanvas.transform);
+        // this.isRedTurn = !this.isRedTurn;

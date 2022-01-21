@@ -1,0 +1,428 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using ConvexKingdom;
+using Util.Geometry.Polygon;
+using Util.DataStructures.VerticalDecomposition;
+
+public class UI : MonoBehaviour
+{
+    private const int TOWERS_PER_SIDE = 10;
+    private bool isRedTurn = true;
+    private List<Tower> blueTowers = new List<Tower>();
+    private List<Tower> redTowers = new List<Tower>();
+    private List<GameObject> canvasTowers = new List<GameObject>();
+    // private int counter = 0;
+    private List<Tower> convexHullBlue = new List<Tower>();
+    private List<Tower> convexHullRed = new List<Tower>();
+    private List<Tower> availableTowers = new List<Tower>();
+    private List<int> capturedTowersIndex = new List<int>();
+    private VerticalDecomposition blueVD = new VerticalDecomposition(new Polygon2D());
+    private VerticalDecomposition redVD = new VerticalDecomposition(new Polygon2D());
+    // Start is called before the first frame update
+    void Start()
+    {
+        GameObject mCanvas = GameObject.Find("Canvas");
+        Button btnObject = mCanvas.GetComponentInChildren<Button>();
+        btnObject.enabled = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void StartGame() {
+        SceneManager.LoadScene("Game");
+    }
+
+    public void ReturnToMenu() {
+        SceneManager.LoadScene("Menu");
+    }
+
+    public void PlaceTower() {
+        SelectTowerOnMap();
+        // Text tbTurn = GameObject.Find("Turn").GetComponent<Text>();
+        // Text tbWinner = GameObject.Find("Winner").GetComponent<Text>();
+        // tbWinner.text = "";
+
+        // if (this.blueTowers.Count > 10) {
+        //     // Game ends here
+        //     // Show Some message
+        //     var convexHullBlue = ConvexHullGen.GetConvexHull(this.blueTowers);
+        //     var convexHullRed = ConvexHullGen.GetConvexHull(this.redTowers);
+        //     this.DrawLines(convexHullBlue, Color.blue);
+        //     this.DrawLines(convexHullRed, Color.red);
+        //     GetVerticalDecomp(convexHullRed);
+        //     var redArea = ConvexHullGen.CalculateConvexHullArea(convexHullRed, Camera.main);
+        //     var blueArea = ConvexHullGen.CalculateConvexHullArea(convexHullBlue, Camera.main);
+
+        //     if (redArea > blueArea) {
+        //         tbWinner.text = "Player Red has larger area!";
+        //         tbWinner.color = Color.red;
+        //     } else if (redArea == blueArea) {
+        //         tbWinner.text = "Draw - the areas are equal!";
+        //         tbWinner.color = Color.green;
+        //     } else {
+        //         tbWinner.text = "Player Blue has larger area!";
+        //         tbWinner.color = Color.blue;
+        //     }
+
+        //     tbTurn.text = "Game Over!";
+
+        //     GameObject canvas = GameObject.Find("Canvas");
+        //     Button btnObject = canvas.GetComponentInChildren<Button>();
+        //     // Button btnRestart = btnObject.GetComponent<Button>();
+        //     btnObject.GetComponentInChildren<Text>().text = "Go to menu";
+        //     btnObject.enabled = true;
+        //     return;
+        // }
+
+        // if (this.IsInvalidCoordinate(Input.mousePosition)) {
+        //     // if towers would overlap or a tower is on the button
+        //     tbWinner.text = "Please select unique coordinates";
+        //     tbWinner.color = Color.yellow;
+        //     return;
+        // }    
+
+        
+
+        // GameObject mCanvas = GameObject.Find("Canvas");
+        // GameObject imgObject = new GameObject("Tower"+(this.counter++).ToString());
+
+        // RectTransform trans = imgObject.AddComponent<RectTransform>();
+        // trans.transform.SetParent(mCanvas.transform); // setting parent
+        // trans.localScale = Vector3.one;
+        // trans.anchoredPosition = new Vector2(0f, 0f); // setting position, will be on center
+        // trans.sizeDelta= new Vector2(Tower.width, Tower.height); // custom size
+        
+        // Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition, 0);
+
+
+        // Image image = imgObject.AddComponent<Image>();
+        // image.transform.position = Input.mousePosition;
+        // image.transform.localScale = new Vector3(1, 1, .1f);
+
+        // if (this.isRedTurn) {
+        //     image.sprite = Resources.Load<Sprite>("red");
+        //     this.redTowers.Add(new Tower(mousePos.x, mousePos.y));
+        //     tbTurn.text = "Blue's Turn";
+        //     tbTurn.color = Color.blue;
+        // } else {
+        //     image.sprite = Resources.Load<Sprite>("blue");
+        //     this.blueTowers.Add(new Tower(mousePos.x, mousePos.y));
+        //     tbTurn.text = "Red's Turn";
+        //     tbTurn.color = Color.red;
+        // }
+        // imgObject.transform.SetParent(mCanvas.transform);
+        // this.isRedTurn = !this.isRedTurn;
+    }
+
+    private void DrawLines(List<Tower> towers, Color color) {
+        if (towers.Count < 2) return;
+        for (int i = 1; i < towers.Count; i++) {
+            Debug.Log(towers[i].GetX() + "   " + towers[i].GetY());
+            DrawLine(towers[i-1], towers[i], i, color);
+        }
+        DrawLine(towers[0], towers[towers.Count-1], towers.Count, color);
+    }
+
+
+    private void DrawLine(Tower start, Tower end, int id, Color cl){
+        var mCanvas = GameObject.Find("Canvas");
+        GameObject imgObject = new GameObject("Line"+(id).ToString());
+        var lr = imgObject.AddComponent<LineRenderer>();
+        RectTransform trans = imgObject.AddComponent<RectTransform>();
+        trans.transform.SetParent(mCanvas.transform); // setting parent
+
+        lr.SetPosition(0, start.position);
+        lr.SetPosition(1, end.position);
+        lr.startWidth = .1f;
+        lr.endWidth = .1f;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startColor = cl;
+        lr.endColor = cl;
+    }
+
+    private bool IsInvalidCoordinate(Vector3 mousePos) {
+        // If there is already a tower on this position
+        // var sreenMousePos = Camera.main.WorldToScreenPoint(mousePos, 0);
+
+        Tower tower1 = this.redTowers.Find(o => IsMouseInRect(mousePos, o.GetScreenPosition(), Tower.width, Tower.height));
+        if (tower1 != null) return true;
+        
+        Tower tower2 = this.blueTowers.Find(o => IsMouseInRect(mousePos, o.GetScreenPosition(), Tower.width, Tower.height));
+        if (tower2 != null) return true;
+
+        GameObject canvas = GameObject.Find("Canvas");
+        Button btnObject = canvas.GetComponentInChildren<Button>();
+        if (IsMouseInRect(mousePos, btnObject.transform.position, 300, 180)) return true;
+
+        return false;
+    }
+
+
+    private bool IsMouseInRect(Vector3 mousePos, Vector3 center, int width, int height){
+        return (mousePos.x >= center.x - width/2 && mousePos.x <= center.x + width/2) && 
+        (mousePos.y >= center.y - height/2 && mousePos.y <= center.y + height/2); 
+    }
+    
+    private void UpdateVerticalDecomp(Player player) {
+        List<Vector2> vertices = new List<Vector2>();
+        List<Tower> towers = player == Player.Blue ? convexHullBlue : convexHullRed;
+        foreach (Tower t in towers) {
+            vertices.Add(t.position);
+        }
+
+        Polygon2D p = new Polygon2D(vertices);
+        VerticalDecomposition vd = new VerticalDecomposition(p);
+
+        // draw debug lines
+        foreach (VerticalDecomposition.Trapezoid t in vd.GetTrapezoids()) {
+            Color c;
+            if (t.in_polygon) c = Color.white;
+            else c = Color.black;
+            int margin = 4;
+            Vector3 top_left =  new Vector3(t.left.x + margin,  t.top.Y(t.left.x + margin) - margin, 5);
+            top_left = Camera.main.ScreenToWorldPoint(top_left, 0);
+            Vector3 top_right = new Vector3(t.right.x - margin, t.top.Y(t.right.x - margin) - margin, 5);
+            top_right = Camera.main.ScreenToWorldPoint(top_right, 0);
+            Vector3 bot_right = new Vector3(t.right.x - margin, t.bottom.Y(t.right.x - margin) + margin, 5);
+            bot_right = Camera.main.ScreenToWorldPoint(bot_right, 0);
+            Vector3 bot_left =  new Vector3(t.left.x + margin,  t.bottom.Y(t.left.x + margin) + margin, 5);
+            bot_left = Camera.main.ScreenToWorldPoint(bot_left, 0);
+            Debug.DrawLine(top_left, top_right, c, 10);
+            Debug.DrawLine(top_right, bot_right, c, 10);
+            Debug.DrawLine(bot_right, bot_left, c, 10);
+            Debug.DrawLine(bot_left, top_left, c, 10);
+            Debug.Log("Drawing " + top_left.ToString() + " " + top_right.ToString() + " " + bot_right.ToString() + " " + bot_left.ToString());
+        }
+    }
+
+    public void PlaceTowersAtRandom() {
+        if (availableTowers.Count > 0) return;
+        Canvas canvas = FindObjectOfType<Canvas>();
+        float height = canvas.GetComponent<RectTransform>().rect.height;
+        float width = canvas.GetComponent<RectTransform>().rect.width;
+
+        for (int i = 0; i < 2*TOWERS_PER_SIDE; i++) {
+            float x = Random.Range(300, width);
+            float y = Random.Range(300, height);
+
+            // While there is a nearby tower get new coordinates
+            while (hasNearbyTower(x, y)) {
+                x = Random.Range(300, width);
+                y = Random.Range(300, height);
+            }
+            availableTowers.Add(new Tower(x, y));
+        }
+
+        UpdateCanvas();
+    }
+
+    private bool hasNearbyTower(float x, float y) {
+        int threshold = 200;
+
+        foreach (Tower tower in availableTowers) {
+            if (tower.GetX() > x - threshold && tower.GetX() < x + threshold) {
+                if (tower.GetY() > y - threshold && tower.GetY() < y + threshold) {
+                    return true;
+                }
+            }
+            if (tower.GetX() > x - 1 && tower.GetX() < x + 1) return true; // assure general positions
+        }
+        
+        return false;
+    }
+
+    public void SelectTowerOnMap() {
+        Vector2 mousePos = Input.mousePosition;
+
+        Tower selectedTower = availableTowers.Find(o => o.GetX() > mousePos.x - 40 && o.GetX() < mousePos.x + 40 && o.GetY() > mousePos.y - 40 && o.GetY() < mousePos.y + 40);
+        // int selectedTowerIndex = availableTowers.FindIndex(o => o.GetX() > mousePos.x - 40 && o.GetX() < mousePos.x + 40 && o.GetY() > mousePos.y - 40 && o.GetY() < mousePos.y + 40);
+
+        if (selectedTower != null) {
+            // GameObject towerGameObj = GameObject.Find("Tower"+selectedTowerIndex.ToString());
+            // Image towerImg = towerGameObj.GetComponentInChildren<Image>();
+            Vector2 coordinates = Camera.main.ScreenToWorldPoint(new Vector2(selectedTower.GetX(), selectedTower.GetY()));
+
+            // If the tower is already captured
+            // int capturedTower = capturedTowersIndex.FindIndex(o => o == selectedTowerIndex);
+            // if (capturedTower != -1) return;
+            // else capturedTowersIndex.Add(selectedTowerIndex);
+
+            if (isRedTurn) {
+                // redTowers.Add(new Tower(coordinates[0], coordinates[1]));
+                // towerImg.sprite = Resources.Load<Sprite>("red");
+                ClaimTower(Player.Red, selectedTower);
+            }
+            else {
+                // blueTowers.Add(new Tower(coordinates[0], coordinates[1]));
+                // towerImg.sprite = Resources.Load<Sprite>("blue");
+                ClaimTower(Player.Blue, selectedTower);
+            }
+
+            isRedTurn = !isRedTurn;
+        }
+
+        if (blueTowers.Count == TOWERS_PER_SIDE) {
+            finalizeGame();
+            return;
+        }
+    }
+
+    private void finalizeGame() {
+        Text tbTurn = GameObject.Find("Turn").GetComponent<Text>();
+        Text tbWinner = GameObject.Find("Winner").GetComponent<Text>();
+        tbWinner.text = "";
+        // Game ends here
+        // Show Some message
+        // var convexHullBlue = ConvexHullGen.GetConvexHull(this.blueTowers);
+        // var convexHullRed = ConvexHullGen.GetConvexHull(this.redTowers);
+        // this.DrawLines(convexHullBlue, Color.blue);
+        // this.DrawLines(convexHullRed, Color.red);
+        var redArea = ConvexHullGen.CalculateConvexHullArea(convexHullRed, Camera.main);
+        var blueArea = ConvexHullGen.CalculateConvexHullArea(convexHullBlue, Camera.main);
+
+        if (redArea > blueArea) {
+            tbWinner.text = "Player Red has larger area!";
+            tbWinner.color = Color.red;
+        } else if (redArea == blueArea) {
+            tbWinner.text = "Draw - the areas are equal!";
+            tbWinner.color = Color.green;
+        } else {
+            tbWinner.text = "Player Blue has larger area!";
+            tbWinner.color = Color.blue;
+        }
+
+        tbTurn.text = "Game Over!";
+
+        GameObject canvas = GameObject.Find("Canvas");
+        Button btnObject = canvas.GetComponentInChildren<Button>();
+        // Button btnRestart = btnObject.GetComponent<Button>();
+        btnObject.GetComponentInChildren<Text>().text = "Go to menu";
+        btnObject.enabled = true;
+        return;
+    }
+    private enum Player { Red, Blue }
+    private bool ClaimTower(Player player, Tower tower) {
+        if (availableTowers.Contains(tower)) availableTowers.Remove(tower);
+
+        // TODO: claiming tower of other player
+
+        if (player == Player.Blue) {
+            // Check if tower in red convexhull
+            if (redVD.PointInPolygon(tower.position)) return false; 
+
+            // Add tower and update convexhull, vertical decomposition
+            blueTowers.Add(tower);
+            convexHullBlue = ConvexHullGen.GetConvexHull(blueTowers);
+            UpdateVerticalDecomp(Player.Blue);
+
+            // Remove encapsulated red towers
+            bool change = false;
+            foreach (Tower t in redTowers) {
+                if (blueVD.PointInPolygon(t.position)) {
+                    redTowers.Remove(t);
+                    change = true;
+                }
+            }
+
+            // Update convexhull, vertical decomposition
+            if (change) {
+                convexHullRed = ConvexHullGen.GetConvexHull(redTowers);
+                UpdateVerticalDecomp(Player.Red);
+            }
+        }
+
+        else if (player == Player.Red) {
+            // check if tower in blue convexhull
+            if (blueVD.PointInPolygon(tower.position)) return false; 
+
+            // Add tower and update convexhull, vertical decomposition
+            redTowers.Add(tower);
+            convexHullRed = ConvexHullGen.GetConvexHull(redTowers);
+            UpdateVerticalDecomp(Player.Red);
+
+            // Remove encapsulated blue towers
+            bool change = false;
+            foreach (Tower t in blueTowers) {
+                if (redVD.PointInPolygon(t.position)) {
+                    Debug.Log("Tower captured!");
+                    blueTowers.Remove(t);
+                    change = true;
+                }
+            }
+
+            // Update convexhull, vertical decomposition
+            if (change) {
+                convexHullBlue = ConvexHullGen.GetConvexHull(blueTowers);
+                UpdateVerticalDecomp(Player.Blue);
+            }
+        }
+
+        UpdateCanvas();
+        return true;
+    }
+    private void UpdateCanvas()
+    {
+        Canvas canvas = FindObjectOfType<Canvas>();
+        // clear all tower sprites
+        foreach (GameObject tower in canvasTowers)
+        {
+            Destroy(tower);
+        }
+
+        // place available, blue, red tower sprites
+        int counter = 0;
+        foreach (Tower tower in availableTowers) {
+            GameObject imgObject = new GameObject("Tower"+(counter++).ToString());
+
+            RectTransform trans = imgObject.AddComponent<RectTransform>();
+            trans.transform.SetParent(canvas.transform); // setting parent
+            trans.localScale = Vector3.one;
+            trans.anchoredPosition = new Vector2(0f, 0f); // setting position, will be on center
+            trans.sizeDelta= new Vector2(Tower.width, Tower.height); // custom size
+            Image image = imgObject.AddComponent<Image>();
+            image.transform.position = new Vector2(tower.GetX(), tower.GetY());
+            image.transform.localScale = new Vector3(1, 1, .1f);
+            image.sprite = Resources.Load<Sprite>("gray");
+            canvasTowers.Add(imgObject);
+        }
+        foreach (Tower tower in blueTowers) {
+            GameObject imgObject = new GameObject("Tower"+(counter++).ToString());
+
+            RectTransform trans = imgObject.AddComponent<RectTransform>();
+            trans.transform.SetParent(canvas.transform); // setting parent
+            trans.localScale = Vector3.one;
+            trans.anchoredPosition = new Vector2(0f, 0f); // setting position, will be on center
+            trans.sizeDelta= new Vector2(Tower.width, Tower.height); // custom size
+            Image image = imgObject.AddComponent<Image>();
+            image.transform.position = new Vector2(tower.GetX(), tower.GetY());
+            image.transform.localScale = new Vector3(1, 1, .1f);
+            image.sprite = Resources.Load<Sprite>("blue");
+            canvasTowers.Add(imgObject);
+        }
+        foreach (Tower tower in redTowers) {
+            GameObject imgObject = new GameObject("Tower"+(counter++).ToString());
+
+            RectTransform trans = imgObject.AddComponent<RectTransform>();
+            trans.transform.SetParent(canvas.transform); // setting parent
+            trans.localScale = Vector3.one;
+            trans.anchoredPosition = new Vector2(0f, 0f); // setting position, will be on center
+            trans.sizeDelta= new Vector2(Tower.width, Tower.height); // custom size
+            Image image = imgObject.AddComponent<Image>();
+            image.transform.position = new Vector2(tower.GetX(), tower.GetY());
+            image.transform.localScale = new Vector3(1, 1, .1f);
+            image.sprite = Resources.Load<Sprite>("red");
+            canvasTowers.Add(imgObject);
+        }
+
+        // draw convexhull
+        DrawLines(convexHullBlue, Color.blue);
+        DrawLines(convexHullRed, Color.red);
+    }
+}
